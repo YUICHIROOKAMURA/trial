@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>トライアル雇用 実践リファレンス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700;900&display=swap">
+<style>
+/* Layout concept: 「仮設の橋」— 縦に一本の道を通し、トライアル期間を橋、終わりの判断を分岐点として描く。各セクションは前の理解を足場に積み上がる */
+:root{
+  --bg:#F6F1E7; --surface:#FFFDF8; --ink:#1B2A38; --muted:#55606B; --line:#DDD3C2;
+  --teal:#1E6E66; --teal-soft:#E2EEEA; --amber:#B97D33; --amber-ink:#83561D; --amber-soft:#F4E7D2;
+  --rust:#9C4A3C; --rust-soft:#F4E1DB; --band:#1B2A38; --on-band:#F3EEE3; --on-band-muted:#B9C2CB;
+  --grey-soft:#ECE6DA;
+  --f-display:"Noto Serif JP","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#111A22; --surface:#18232D; --ink:#E9E4D9; --muted:#A7B0B8; --line:#2D3B48;
+  --teal:#5DB7AA; --teal-soft:#183530; --amber:#D9A35E; --amber-ink:#E3B577; --amber-soft:#33281A;
+  --rust:#DC8B78; --rust-soft:#3A221D; --band:#0B1218; --on-band:#EEE8DC; --on-band-muted:#9FAAB4;
+  --grey-soft:#212C36; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#111A22; --surface:#18232D; --ink:#E9E4D9; --muted:#A7B0B8; --line:#2D3B48;
+  --teal:#5DB7AA; --teal-soft:#183530; --amber:#D9A35E; --amber-ink:#E3B577; --amber-soft:#33281A;
+  --rust:#DC8B78; --rust-soft:#3A221D; --band:#0B1218; --on-band:#EEE8DC; --on-band-muted:#9FAAB4;
+  --grey-soft:#212C36; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.85;
+  -webkit-font-smoothing:antialiased;padding-inline:16px}
+.wrap{max-width:860px;margin-inline:auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.4;margin:0}
+h2{font-size:clamp(1.45rem,1.1rem + 1.4vw,1.95rem);font-weight:900}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.prose{display:grid;gap:14px;max-width:66ch}
+.muted{color:var(--muted)}
+strong{font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--teal);text-underline-offset:3px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px;border-radius:4px}
+
+/* sticky nav */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--line)}
+.topbar-in{max-width:860px;margin-inline:auto;display:flex;align-items:center;gap:12px;padding-block:9px}
+.brand{font-family:var(--f-display);font-weight:700;font-size:.95rem;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 14px;font-size:.85rem;cursor:pointer;display:flex;gap:6px;align-items:center}
+.progress{height:3px;background:var(--line);margin-inline:-16px}
+.progress span{display:block;height:100%;width:0;background:var(--teal)}
+.toc{position:absolute;top:calc(100% - 3px);right:max(16px,calc((100% - 860px)/2));width:min(340px,calc(100% - 32px));max-height:min(62vh,520px);overflow-y:auto;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;display:grid;gap:0;z-index:30}
+.toc button{font-size:.88rem;padding:5px 10px}
+.toc button.cur{background:var(--teal-soft)}
+.cur-sec{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;font-family:var(--f-body);font-weight:400}
+.brand-wrap{flex:1;min-width:0;display:grid;line-height:1.35}
+.toc button{text-align:left;border:0;background:transparent;border-radius:6px;cursor:pointer}
+.toc button:hover{background:var(--grey-soft)}
+.toc button b{color:var(--teal);font-variant-numeric:tabular-nums;margin-right:6px}
+
+/* hero */
+.hero{padding-block:48px 28px;display:grid;gap:22px}
+.eyebrow{font-size:.78rem;letter-spacing:.14em;color:var(--teal);font-weight:700}
+.hero h1{font-size:clamp(2rem,1.4rem + 3vw,3.1rem);font-weight:900;letter-spacing:.02em}
+.hero .lead{font-size:1.08rem;max-width:40em}
+.hero-def{border-left:4px solid var(--amber);padding:10px 16px;background:var(--surface);border-radius:0 var(--r) var(--r) 0;max-width:44em}
+.hero-def b{font-family:var(--f-display)}
+.bridge{width:100%;height:auto;display:block}
+.svg-ink{fill:var(--ink)} .svg-muted{fill:var(--muted)} .svg-teal{fill:var(--teal)} .svg-amber{fill:var(--amber)} .svg-rust{fill:var(--rust)}
+.svg-surface{fill:var(--surface)} .svg-line{fill:var(--line)} .svg-tealsoft{fill:var(--teal-soft)} .svg-ambersoft{fill:var(--amber-soft)} .svg-rustsoft{fill:var(--rust-soft)} .svg-grey{fill:var(--grey-soft)}
+.st-ink{stroke:var(--ink)} .st-teal{stroke:var(--teal)} .st-amber{stroke:var(--amber)} .st-muted{stroke:var(--muted)} .st-rust{stroke:var(--rust)} .st-line{stroke:var(--line)}
+svg text{font-family:var(--f-body)}
+
+/* sections */
+section.sec{padding-block:56px 8px;display:grid;gap:22px;scroll-margin-top:64px}
+.sec-head{display:grid;gap:8px}
+.sec-no{font-family:var(--f-display);font-size:.85rem;color:var(--amber-ink);font-weight:700;letter-spacing:.08em}
+.reveal{transition:transform .6s ease, opacity .6s ease}
+.reveal.pre{transform:translateY(14px);opacity:.35}
+
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;vertical-align:2px;font-family:var(--f-body);letter-spacing:.02em}
+.b-high{background:var(--teal-soft);color:var(--teal)}
+.b-mid{background:var(--amber-soft);color:var(--amber-ink)}
+.b-low{background:var(--rust-soft);color:var(--rust)}
+
+/* cards & callouts */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 18px;min-width:0}
+.callout{border-radius:var(--r);padding:16px 18px;display:grid;gap:8px}
+.callout.teal{background:var(--teal-soft)}
+.callout.amber{background:var(--amber-soft)}
+.callout.rust{background:var(--rust-soft)}
+.callout h3{font-size:1rem}
+.callout .tag{font-size:.75rem;font-weight:700;letter-spacing:.1em}
+.callout.teal .tag{color:var(--teal)} .callout.amber .tag{color:var(--amber-ink)} .callout.rust .tag{color:var(--rust)}
+
+/* compare two ways */
+.twoway{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:680px){.twoway{grid-template-columns:1fr}}
+.flow{display:grid;gap:8px}
+.flow .node{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--bg);font-size:.92rem}
+.flow .node.hl{border-color:var(--teal);background:var(--teal-soft)}
+.flow .node.warn{border-color:var(--rust);background:var(--rust-soft)}
+.flow .arrow{justify-self:center;color:var(--muted);font-size:.8rem;line-height:1}
+.way-title{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.way-title h3{font-size:1.05rem}
+
+/* parts grid */
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:640px){.parts{grid-template-columns:1fr}}
+.part{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start}
+.part .ic{width:44px;height:44px;border-radius:10px;background:var(--teal-soft);display:grid;place-items:center}
+.part .ic svg{width:24px;height:24px;stroke:var(--teal);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.part h3{font-size:1.02rem;margin-bottom:4px}
+.part .why{margin-top:8px;font-size:.9rem;color:var(--muted)}
+.part .why b{color:var(--ink)}
+
+.diagram-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.diagram-scroll svg{display:block;min-width:640px;width:100%;height:auto}
+.cap{font-size:.85rem;color:var(--muted)}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;display:grid;gap:0;position:relative}
+.tl li{display:grid;grid-template-columns:46px 1fr;gap:14px;position:relative;padding-bottom:22px}
+.tl li::before{content:"";position:absolute;left:22px;top:40px;bottom:0;width:2px;background:var(--line)}
+.tl li:last-child::before{display:none}
+.tl .dot{width:46px;height:46px;border-radius:50%;background:var(--surface);border:2px solid var(--teal);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;color:var(--teal);font-variant-numeric:tabular-nums;position:relative;z-index:1}
+.tl li.bridge-step .dot{background:var(--teal);color:var(--bg)}
+.tl li.fork .dot{border-color:var(--amber);color:var(--amber-ink)}
+.tl .body{min-width:0;display:grid;gap:6px;padding-top:6px}
+.tl .who{font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.tl .deadline{display:inline-block;font-size:.8rem;font-weight:700;color:var(--rust);background:var(--rust-soft);padding:0 8px;border-radius:4px}
+.staff{font-size:.9rem;border-left:3px solid var(--amber);padding:2px 0 2px 10px}
+.staff b{color:var(--amber-ink)}
+details.more{font-size:.92rem}
+details.more summary{cursor:pointer;color:var(--teal);font-weight:500;list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"＋ "}
+details.more[open] summary::before{content:"－ "}
+details.more > div{padding-top:6px;display:grid;gap:6px}
+
+/* simulator */
+.sim{display:grid;gap:16px}
+.sim-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:600px){.sim-row{grid-template-columns:1fr}}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-size:.82rem;font-weight:700;color:var(--muted)}
+select,input[type=range]{width:100%}
+select{padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input[type=range]{accent-color:var(--teal)}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+.mcell{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);cursor:pointer;text-align:left;display:grid;gap:2px;min-height:86px}
+.mcell:hover{border-color:var(--teal)}
+.mcell .mn{font-size:.75rem;color:var(--muted);font-weight:700}
+.mcell .band{font-size:.78rem}
+.mcell .amt{font-weight:700;font-variant-numeric:tabular-nums}
+.mcell.hi{background:var(--teal-soft);border-color:var(--teal)}
+.mcell.off{cursor:default;background:var(--grey-soft);color:var(--muted)}
+.mcell.off .amt{font-weight:500;font-size:.78rem}
+.sim-total{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline;border-top:1px solid var(--line);padding-top:12px}
+.sim-total .big{font-family:var(--f-display);font-size:1.8rem;font-weight:900;font-variant-numeric:tabular-nums;color:var(--teal)}
+.sim-note{font-size:.88rem}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:.88rem}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+thead th{background:var(--grey-soft);font-weight:700;font-size:.82rem;white-space:nowrap}
+tbody th{font-weight:700;white-space:nowrap}
+tr:last-child td,tr:last-child th{border-bottom:0}
+td.focus,th.focus{background:var(--teal-soft)}
+
+/* routes */
+.route-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem}
+.route-legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+
+/* band section */
+.band{background:var(--band);color:var(--on-band);margin-inline:-16px;padding-inline:16px;margin-top:56px}
+.band .wrap{padding-block:48px}
+.band h2,.band h3{color:var(--on-band)}
+.band .sec-no{color:var(--amber)}
+.band .muted{color:var(--on-band-muted)}
+.band .crit{display:grid;gap:14px}
+.band .crit-item{border-top:1px solid rgba(255,255,255,.14);padding-top:14px;display:grid;grid-template-columns:2.2em 1fr;gap:10px}
+.band .crit-item .k{font-family:var(--f-display);font-weight:900;color:var(--amber);font-size:1.2rem;line-height:1.5}
+.band .crit-item h3{font-size:1.05rem;margin-bottom:4px}
+.band .crit-item p{color:var(--on-band)}
+.band .crit-item .counter{margin-top:6px;font-size:.9rem;color:var(--on-band-muted)}
+.band .crit-item .counter b{color:var(--amber)}
+.band .badge.b-high{background:rgba(93,183,170,.18);color:#8FD3C8}
+.band .badge.b-mid{background:rgba(217,163,94,.18);color:#EBC48C}
+.band .badge.b-low{background:rgba(220,139,120,.2);color:#F0AE9E}
+.band a{color:#8FD3C8}
+
+/* chart */
+.chart svg{width:100%;height:auto;display:block}
+
+/* checklist */
+.check-groups{display:grid;gap:16px}
+.cg h3{font-size:1rem;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cg h3 .cnt{font-family:var(--f-body);font-size:.82rem;color:var(--teal);font-variant-numeric:tabular-nums}
+.ck{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.93rem;cursor:pointer;align-items:start}
+.ck input{width:18px;height:18px;margin-top:5px;accent-color:var(--teal)}
+.ck.done span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.role h3{font-size:.98rem;margin-bottom:6px}
+.role ul{margin:0;padding-left:1.1em;font-size:.9rem;display:grid;gap:4px}
+.role.self{border-color:var(--teal);border-width:2px}
+
+/* talk */
+.talk{display:grid;gap:12px}
+.talk-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:640px){.talk-row{grid-template-columns:1fr}}
+.talk .ng,.talk .ok{border-radius:8px;padding:10px 14px;font-size:.93rem}
+.talk .ng{background:var(--rust-soft)} .talk .ok{background:var(--teal-soft)}
+.talk .lbl{font-size:.72rem;font-weight:700;letter-spacing:.1em;display:block;margin-bottom:2px}
+.talk .ng .lbl{color:var(--rust)} .talk .ok .lbl{color:var(--teal)}
+
+/* glossary & quiz */
+.acc{border-top:1px solid var(--line)}
+.acc details{border-bottom:1px solid var(--line)}
+.acc summary{cursor:pointer;padding:12px 4px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;list-style:none}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .t{font-weight:700}
+.acc summary .p{font-size:.88rem;color:var(--teal)}
+.acc summary::after{content:"+";color:var(--muted);font-weight:700}
+.acc details[open] summary::after{content:"−"}
+.acc summary{grid-template-columns:minmax(0,1fr) auto auto}
+.acc .ans{padding:0 4px 14px;font-size:.93rem;display:grid;gap:6px}
+@media (max-width:560px){.acc summary{grid-template-columns:1fr auto}.acc summary .p{grid-column:1/-1;grid-row:2}}
+
+.quiz{display:grid;gap:12px}
+.q{display:grid;gap:10px}
+.q .opts{display:flex;gap:8px;flex-wrap:wrap}
+.q .opts button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 16px;cursor:pointer}
+.q .opts button:hover{border-color:var(--teal)}
+.q .opts button.right{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.q .opts button.wrong{background:var(--rust-soft);border-color:var(--rust)}
+.q .fb{font-size:.92rem}
+
+/* history */
+.hist{display:grid;gap:0;border-left:2px solid var(--line);margin-left:6px}
+.hist div{display:grid;grid-template-columns:7.5em 1fr;gap:12px;padding:6px 0 6px 16px;position:relative;font-size:.92rem}
+.hist div::before{content:"";position:absolute;left:-6px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--teal)}
+.hist .y{font-variant-numeric:tabular-nums;font-weight:700;color:var(--teal)}
+@media (max-width:480px){.hist div{grid-template-columns:1fr;gap:0}}
+
+
+/* pros & cons */
+.pc{display:grid;gap:14px}
+.pc-card h3{margin-bottom:10px}
+.pc-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:640px){.pc-cols{grid-template-columns:1fr}}
+.pc-cols ul{margin:0;padding-left:1.1em;display:grid;gap:5px;font-size:.92rem}
+.pc-lbl{font-size:.75rem;font-weight:700;letter-spacing:.1em;margin-bottom:6px;padding:1px 10px;border-radius:999px;display:inline-block}
+.pc-lbl.plus{background:var(--teal-soft);color:var(--teal)}
+.pc-lbl.minus{background:var(--rust-soft);color:var(--rust)}
+.faq .ans p{max-width:66ch}
+/* sources */
+.src{margin:0;padding-left:1.4em;display:grid;gap:8px;font-size:.88rem}
+.src li{padding-left:2px}
+.src .meta{color:var(--muted)}
+footer{padding-block:48px 64px;text-align:center;color:var(--muted);font-size:.85rem}
+.scope{font-size:.85rem;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r);padding:12px 14px}
+</style>
+</head>
+<body>
+
+
+<div class="topbar" id="topbar">
+  <div class="topbar-in">
+    <div class="brand-wrap"><div class="brand">トライアル雇用 実践リファレンス</div><span class="cur-sec" id="curSec"></span></div>
+    <button class="toc-btn" id="tocBtn" aria-expanded="false" aria-controls="tocPanel">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>目次
+    </button>
+  </div>
+  <nav class="toc" id="tocPanel" hidden aria-label="目次"></nav>
+  <div class="progress"><span id="prog"></span></div>
+</div>
+
+<main class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">就労移行支援スタッフ向け ／ 雇用・助成制度</div>
+  <h1>トライアル雇用<br>実践リファレンス</h1>
+  <p class="lead">採用という「取り返しにくい一度の決定」を、<strong>実際に働いてから決める二段階の決定</strong>に変える制度です。仕組み、就労移行支援とのつながり、そして見落とされやすい限界までを順にたどります。</p>
+  <div class="hero-def">
+    <b>ひとことで言うと：</b>ハローワーク等の紹介で、<strong>終わりの日が決まった雇用契約（有期雇用）</strong>を結んで実際に働き、その間に本人と職場が互いを見極め、続けて雇うかを判断する仕組み。条件を満たした職場には国から助成金が出ます。「職場体験」ではなく、<strong>賃金の出る本物の雇用</strong>です。
+  </div>
+  <svg class="bridge" viewBox="0 0 800 250" role="img" aria-label="求職者の岸から職場の岸へ、支援という手すりの付いた仮設の橋が架かり、渡った先で継続雇用か期間満了かに分かれる図">
+    <rect x="0" y="150" width="190" height="100" class="svg-grey"/>
+    <rect x="610" y="150" width="190" height="100" class="svg-grey"/>
+    <text x="95" y="200" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">求職者</text>
+    <text x="95" y="222" text-anchor="middle" font-size="12" class="svg-muted">働きぶりは見えにくい</text>
+    <text x="705" y="200" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">職場</text>
+    <text x="705" y="222" text-anchor="middle" font-size="12" class="svg-muted">中の実際は見えにくい</text>
+    <!-- bridge deck -->
+    <path d="M190 150 Q400 128 610 150" fill="none" class="st-teal" stroke-width="7" stroke-linecap="round"/>
+    <!-- handrail -->
+    <path d="M190 112 Q400 90 610 112" fill="none" class="st-amber" stroke-width="2.5" stroke-dasharray="6 6"/>
+    <g class="st-amber" stroke-width="2">
+      <line x1="240" y1="107" x2="240" y2="144"/><line x1="320" y1="99" x2="320" y2="138"/><line x1="400" y1="97" x2="400" y2="136"/><line x1="480" y1="99" x2="480" y2="138"/><line x1="560" y1="107" x2="560" y2="144"/>
+    </g>
+    <text x="400" y="84" text-anchor="middle" font-size="12.5" class="svg-muted">手すり＝支援（就労移行・ハローワーク・ジョブコーチ等）</text>
+    <text x="400" y="172" text-anchor="middle" font-size="14" font-weight="700" class="svg-teal">トライアル期間（有期の雇用契約）</text>
+    <text x="400" y="192" text-anchor="middle" font-size="12" class="svg-muted">原則3か月 ／ 精神障害は原則6〜12か月 ／ 短時間型は3〜12か月</text>
+    <!-- fork -->
+    <circle cx="640" cy="80" r="8" class="svg-amber"/>
+    <path d="M610 112 L640 88" class="st-muted" stroke-width="1.5" fill="none"/>
+    <path d="M648 76 L720 30" class="st-teal" stroke-width="3" fill="none"/>
+    <path d="M648 84 L730 96" class="st-rust" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
+    <text x="724" y="28" font-size="13" font-weight="700" class="svg-teal">継続雇用へ</text>
+    <text x="734" y="100" font-size="12" class="svg-rust">期間満了</text>
+    <text x="734" y="116" font-size="12" class="svg-rust">で終了</text>
+    <text x="586" y="58" font-size="12" text-anchor="end" class="svg-amber" font-weight="700">分岐点</text>
+  </svg>
+  <p class="scope">この資料の範囲：主に<strong>障害者トライアルコース・障害者短時間トライアルコース</strong>を扱い、比較のために一般トライアルコースにも触れます。制度の数値は厚生労働省の要領（令和8年4月8日版）とリーフレット等の一次資料に基づきます。助成金の可否は労働局の審査で決まるため、個別の判断は必ず管轄のハローワーク・労働局に確認してください。<br>確度バッジ：<span class="badge b-high">確度 高</span> 要領・通知に明記 ／ <span class="badge b-mid">確度 中</span> 自治体の解釈・観察データ・解説 ／ <span class="badge b-low">要確認</span> 一次資料で特定できなかった点</p>
+</header>
+
+<!-- 1 -->
+<section class="sec" id="s1" data-title="なぜ必要か：一発勝負の採用">
+  <div class="sec-head">
+    <div class="sec-no">01 ／ 問題</div>
+    <h2>採用は「お互いに見えないまま」行う一発勝負</h2>
+  </div>
+  <div class="prose">
+    <p>採用の場面では、職場も本人も、相手について決定的な情報を持っていません。職場は書類と面接で働きぶりを推測するしかなく、本人は職場の人間関係や仕事の実際を入社前に知る手段がありません。障害のある人の採用では、これに「<strong>どんな配慮があれば力を発揮できるか</strong>」という、実際に働いてみないと分からない問いが加わります。</p>
+    <p>情報が足りないまま無期の雇用（期間の定めのない雇用）を決めるのは、職場にとっても本人にとっても重い判断です。その結果、職場は「不安だから採らない」を選びやすく、採った場合も合わなければ早期離職につながります。</p>
+  </div>
+  <div class="twoway">
+    <div class="card flow">
+      <div class="way-title"><h3>これまでの採用</h3><span class="muted" style="font-size:.85rem">判断は一回</span></div>
+      <div class="node">書類・面接</div>
+      <div class="arrow">↓ 推測で判断</div>
+      <div class="node warn"><b>無期雇用を決定</b><br><span style="font-size:.85rem">合わなかったときの出口は、本人の退職か解雇しかない</span></div>
+    </div>
+    <div class="card flow">
+      <div class="way-title"><h3>トライアル雇用</h3><span class="muted" style="font-size:.85rem">判断は二回</span></div>
+      <div class="node">書類選考なしの面接</div>
+      <div class="arrow">↓ 一回目の判断：試すかどうか</div>
+      <div class="node hl"><b>有期の雇用契約で実際に働く</b><br><span style="font-size:.85rem">働きぶり・配慮の効き目・職場の実際が「見える情報」になる</span></div>
+      <div class="arrow">↓ 二回目の判断：続けるかどうか</div>
+      <div class="node">継続雇用 ／ 期間満了で終了</div>
+    </div>
+  </div>
+  <div class="callout amber">
+    <div class="tag">データで見る「早期のミスマッチ」</div>
+    <p>ハローワークの紹介で一般企業に就職した障害者3,273人を追った調査では、就職後3か月時点の定着率は76.5%、1年時点は58.4%でした。3か月未満で離れた人の理由は「労働条件があわない」19.1%、「業務遂行上の課題あり」18.1%が多くを占めました。入社前には見えにくい情報が、早い段階の離職に結びついていることがうかがえます。<span class="badge b-mid">確度 中 ／ 観察調査</span></p>
+    <p class="cap">出典：JEED障害者職業総合センター 調査研究報告書No.137（2017）。2015年7〜8月の紹介就職者が対象。</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="sec" id="s2" data-title="仕組みの核心：4つの部品">
+  <div class="sec-head">
+    <div class="sec-no">02 ／ 仕組み</div>
+    <h2>トライアル雇用を成り立たせる4つの部品</h2>
+    <p class="muted">どれか一つでも欠けると制度として成り立ちません。それぞれ「なぜその部品があるのか」まで押さえると、細かいルールの意味が見えてきます。</p>
+  </div>
+  <div class="parts">
+    <div class="card part">
+      <div class="ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.6 10.7l6.8-3.4M8.6 13.3l6.8 3.4"/></svg></div>
+      <div>
+        <h3>① 正式な紹介ルート</h3>
+        <p>職場が先に「トライアル雇用求人」をハローワーク等に出し、ハローワーク等が対象者であることを確認したうえで紹介します。<span class="badge b-high">確度 高</span></p>
+        <p class="why"><b>なぜ：</b>紹介前から採ると決めていた人を助成の対象にしないため、また対象者を公的に確認するためです。紹介の前に選考を始めていた職場は、助成金の対象外です。</p>
+      </div>
+    </div>
+    <div class="card part">
+      <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/><path d="M15 17l1.5 1.5L19 16"/></svg></div>
+      <div>
+        <h3>② 終わりの日が決まった雇用契約</h3>
+        <p>実習ではなく雇用です。賃金が支払われ、労働基準法が適用されます。雇用保険にも加入します（短時間型で週20時間未満の期間を除く）。<span class="badge b-high">確度 高</span></p>
+        <p class="why"><b>なぜ：</b>実際の責任・賃金・人間関係のなかで働いてこそ、見極めに使える情報が得られるからです。期間中の労働条件は、原則として継続後と同じにすることになっています。</p>
+      </div>
+    </div>
+    <div class="card part">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M6 16l4-8 4 5 4-9"/><circle cx="18" cy="4" r="1.5"/></svg></div>
+      <div>
+        <h3>③ 続けて雇う条件の事前合意</h3>
+        <p>開始から2週間以内に職場が「実施計画書」を出します。そこに書く「継続雇用する労働者として雇用するための要件」は、開始前に本人と十分に話し合い、本人の同意を得て決めるよう求められています。<span class="badge b-high">確度 高</span></p>
+        <p class="why"><b>なぜ：</b>終わりの判断が職場の気分で決まらないよう、判断の物差しを先に決めておくためです。<b>支援者が最も関われる部品</b>でもあります。</p>
+      </div>
+    </div>
+    <div class="card part">
+      <div class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div>
+      <div>
+        <h3>④ 国による費用の一部負担と乱用防止</h3>
+        <p>条件を満たした職場に月額最大4万円（精神障害は最初の3か月は最大8万円）が支給されます。一方で、過去3年に継続雇用へ移らなかった人が一定数を超える職場は対象外になります。<span class="badge b-high">確度 高</span></p>
+        <p class="why"><b>なぜ：</b>「試すコスト」を下げて採用の入口を広げつつ、助成金目的で人を入れ替える使い方を抑えるためです。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>お金と書類の流れ</h3>
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 760 360" role="img" aria-label="求職者、ハローワーク等、職場、労働局、就労移行支援事業所の間で、求人、紹介、雇用契約、計画書、支給申請、助成金がどう流れるかの図">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="svg-muted"/></marker>
+        <marker id="aht" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="svg-teal"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="svg-amber"/></marker>
+      </defs>
+      <!-- nodes -->
+      <rect x="20" y="140" width="150" height="70" rx="10" class="svg-surface st-ink" stroke-width="1.5"/>
+      <text x="95" y="171" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">求職者（本人）</text>
+      <text x="95" y="192" text-anchor="middle" font-size="11.5" class="svg-muted">求職登録・トライアルを希望</text>
+
+      <rect x="305" y="20" width="150" height="70" rx="10" class="svg-tealsoft st-teal" stroke-width="1.5"/>
+      <text x="380" y="51" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">ハローワーク等</text>
+      <text x="380" y="72" text-anchor="middle" font-size="11.5" class="svg-muted">対象者確認・紹介・訪問</text>
+
+      <rect x="590" y="140" width="150" height="70" rx="10" class="svg-surface st-ink" stroke-width="1.5"/>
+      <text x="665" y="171" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">職場（事業主）</text>
+      <text x="665" y="192" text-anchor="middle" font-size="11.5" class="svg-muted">雇用・賃金支払・判断</text>
+
+      <rect x="590" y="275" width="150" height="62" rx="10" class="svg-grey st-muted" stroke-width="1.2"/>
+      <text x="665" y="303" text-anchor="middle" font-size="15" font-weight="700" class="svg-ink">労働局</text>
+      <text x="665" y="323" text-anchor="middle" font-size="11.5" class="svg-muted">助成金の審査・支給</text>
+
+      <rect x="20" y="275" width="150" height="62" rx="10" class="svg-ambersoft st-amber" stroke-width="1.5"/>
+      <text x="95" y="303" text-anchor="middle" font-size="14" font-weight="700" class="svg-ink">就労移行支援事業所</text>
+      <text x="95" y="323" text-anchor="middle" font-size="11.5" class="svg-muted">準備・並走・振り返り</text>
+
+      <!-- arrows -->
+      <path d="M170 150 L303 70" class="st-muted" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+      <text x="196" y="96" font-size="11.5" class="svg-muted">❶ 求職登録</text>
+      <path d="M588 150 L457 70" class="st-muted" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+      <text x="520" y="96" font-size="11.5" class="svg-muted" text-anchor="start">❷ トライアル求人</text>
+      <text x="520" y="111" font-size="11.5" class="svg-muted">（紹介の前に）</text>
+      <path d="M380 92 L380 128 L586 160" class="st-teal" stroke-width="2" fill="none" marker-end="url(#aht)"/>
+      <path d="M380 128 L174 160" class="st-teal" stroke-width="2" fill="none" marker-end="url(#aht)"/>
+      <text x="388" y="122" font-size="11.5" font-weight="700" class="svg-teal">❸ 紹介（書類選考なしで面接）</text>
+      <path d="M174 192 L586 192" class="st-teal" stroke-width="3" fill="none" marker-start="url(#aht)" marker-end="url(#aht)"/>
+      <text x="380" y="186" text-anchor="middle" font-size="12.5" font-weight="700" class="svg-teal">❹ 有期の雇用契約・賃金</text>
+      <text x="380" y="210" text-anchor="middle" font-size="11.5" class="svg-muted">継続の条件を事前に合意</text>
+      <path d="M655 212 L655 272" class="st-muted" stroke-width="1.5" fill="none" marker-end="url(#ah)"/>
+      <text x="600" y="232" font-size="11.5" class="svg-muted" text-anchor="end">❺ 計画書（開始2週間以内）</text>
+      <text x="600" y="248" font-size="11.5" class="svg-muted" text-anchor="end">❻ 支給申請（終了後2か月以内）</text>
+      <path d="M680 272 L680 214" class="st-amber" stroke-width="2" fill="none" marker-end="url(#aha)"/>
+      <text x="690" y="250" font-size="11.5" font-weight="700" class="svg-amber">❼ 助成金</text>
+      <path d="M95 273 L95 214" class="st-amber" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#aha)"/>
+      <path d="M172 306 L586 220" class="st-amber" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+      <text x="300" y="282" font-size="11.5" class="svg-amber" font-weight="700">本人の同意のもとで職場と情報共有・訪問</text>
+    </svg>
+  </div>
+  <p class="cap">図の番号はおおよその順序。手続き上の正式な関係者は本人・ハローワーク等・職場・労働局で、就労移行支援事業所は制度上の当事者ではなく「本人の側で並走する存在」です（点線）。民間の職業紹介事業者も、同意書を出して条件を満たしていれば紹介できます。</p>
+</section>
+
+<!-- 3 -->
+<section class="sec" id="s3" data-title="流れ：求人から継続判断まで">
+  <div class="sec-head">
+    <div class="sec-no">03 ／ 流れ</div>
+    <h2>求人から継続の判断まで</h2>
+    <p class="muted">障害者トライアルコースの標準的な流れです。各段階に「支援者の出番」を添えています。</p>
+  </div>
+  <ol class="tl">
+    <li>
+      <div class="dot">1</div>
+      <div class="body">
+        <div class="who">職場 → ハローワーク等</div>
+        <h3>トライアル雇用求人を出す</h3>
+        <p>求人は「継続雇用の求人でトライアルも認める（併用求人）」か「トライアル専用求人」のどちらか。短時間型は専用求人に限られます。求人数を超えてトライアルを始めることはできません。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>求人票で、トライアル期間中と継続後で労働条件（時間・賃金・業務）が違うかを確認します。違う場合は求人票に明記されているはずです。</p>
+      </div>
+    </li>
+    <li>
+      <div class="dot">2</div>
+      <div class="body">
+        <div class="who">本人 ⇄ ハローワーク等</div>
+        <h3>対象者の確認と紹介</h3>
+        <p>本人が制度を理解し、トライアルでの採用も希望していることが前提です。同時に複数のトライアル求人には紹介されず、選考中は新しいトライアル紹介も受けられません。<span class="badge b-high">確度 高</span></p>
+        <details class="more"><summary>対象者の要件（障害者トライアルコース）</summary>
+          <div>
+            <p>障害者雇用促進法上の障害者で、次のいずれかに当てはまる人。手帳がない発達障害の人も、主治医の意見書などで確認できれば対象になりえます。</p>
+            <p>ア 紹介日に、経験のない職業に就くことを希望している ／ イ 紹介日前2年以内に離職か転職が2回以上 ／ ウ 紹介日前の離職期間が6か月を超えている ／ エ 重度身体障害者・重度知的障害者・精神障害者（ア〜ウに関係なく対象）</p>
+            <p>紹介日に、すでに1年を超えて雇われる見込みで働いている人などは対象外です（精神障害者などの例外あり）。</p>
+          </div>
+        </details>
+        <p class="staff"><b>支援者の出番：</b>「お試しだから気軽に」ではなく、有期契約であること、期間満了で終わる可能性があることを本人が理解しているかを確かめます。</p>
+      </div>
+    </li>
+    <li>
+      <div class="dot">3</div>
+      <div class="body">
+        <div class="who">本人 ⇄ 職場</div>
+        <h3>書類選考なしの面接</h3>
+        <p>トライアル雇用の紹介を受けた人の選考は、書類選考ではなく面接で行うことが必須です。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>書類では伝わりにくい強みや、試したい配慮を面接で伝えられるよう準備します。</p>
+      </div>
+    </li>
+    <li class="bridge-step">
+      <div class="dot">4</div>
+      <div class="body">
+        <div class="who">本人 ⇄ 職場</div>
+        <h3>有期の雇用契約を結び、トライアル開始</h3>
+        <p>原則3か月。精神障害者は原則6〜12か月（本人と職場の合意で3〜5か月も可）。週の所定労働時間は20時間以上。期間は短時間型や在宅勤務で変わります（次のセクション）。<span class="badge b-high">確度 高</span></p>
+      </div>
+    </li>
+    <li>
+      <div class="dot">5</div>
+      <div class="body">
+        <div class="who">職場 → ハローワーク等</div>
+        <h3>実施計画書を出す <span class="deadline">開始日から2週間以内</span></h3>
+        <p>雇用契約書など労働条件が分かる書類を添えて提出します。中心になるのが「継続雇用する労働者として雇用するための要件」です。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>ここが最重要です。要件を「頑張る」「慣れる」ではなく、観察できる行動（例：週4日・1日6時間の勤務を4週連続で続ける、指示書を見て伝票入力を1日○件）として、本人・職場と一緒に言葉にします。本人が同意していない要件は、要領の趣旨に反します。</p>
+      </div>
+    </li>
+    <li class="bridge-step">
+      <div class="dot">6</div>
+      <div class="body">
+        <div class="who">本人・職場・支援者</div>
+        <h3>期間中：働きながら見極める</h3>
+        <p>ハローワーク等は必要に応じて職場を訪問し、継続雇用へ移るための研修などを職場に勧めます。ジョブコーチ（職場適応援助者）の支援を期間中から使う例もあります。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>配慮を「試して、記録する」期間にします。何を試し、どうだったかの記録が、継続判断と継続後の配慮の土台になります。</p>
+      </div>
+    </li>
+    <li class="fork">
+      <div class="dot">7</div>
+      <div class="body">
+        <div class="who">職場（本人との確認のうえ）</div>
+        <h3>分岐点：継続雇用へ移るかの判断</h3>
+        <p>継続する場合は改めて継続雇用（1年を超える見込みの雇用）の契約を結びます。期間の途中で継続雇用へ切り替えることもできます。継続しない場合、有期契約は期間満了で終わります。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>継続しないときは、理由を本人が理解できる形で聞き取り、次の一手（別の求人、再アセスメント）につなげます。「失敗」ではなく、情報が得られた結果として扱います。</p>
+      </div>
+    </li>
+    <li>
+      <div class="dot">8</div>
+      <div class="body">
+        <div class="who">職場 → 労働局</div>
+        <h3>結果報告と支給申請 <span class="deadline">終了翌日から2か月以内</span></h3>
+        <p>期限を過ぎると助成金は受けられません。途中離職・途中で継続へ移行した場合は起算日が変わります。精神障害者で期間が6か月を超える場合は、開始から6か月経った日が起算日です（職場が希望すれば終了翌日）。<span class="badge b-high">確度 高</span></p>
+        <p class="staff"><b>支援者の出番：</b>申請は職場の手続きです。支援者が代行するものではありませんが、期限があることを職場が知らない場合は、ハローワークへの確認を促せます。</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- 4 -->
+<section class="sec" id="s4" data-title="コースと助成額のシミュレーター">
+  <div class="sec-head">
+    <div class="sec-no">04 ／ コース</div>
+    <h2>コースによって、期間と助成のしくみが違う</h2>
+    <p class="muted">特に注意したいのは「トライアル期間」と「助成される期間」が一致しないことです。コースを選び、各月をクリックして出勤状況を変えると、助成額の上限の目安が変わります。</p>
+  </div>
+  <div class="card sim" id="sim">
+    <div class="sim-row">
+      <div class="field">
+        <label for="simCourse">コース・対象</label>
+        <select id="simCourse">
+          <option value="shogai">障害者トライアル（精神障害以外）</option>
+          <option value="seishin" selected>障害者トライアル（精神障害）</option>
+          <option value="telework">障害者トライアル（在宅勤務・精神障害以外）</option>
+          <option value="tanjikan">障害者短時間トライアル</option>
+          <option value="ippan">一般トライアル</option>
+          <option value="hitori">一般トライアル（ひとり親）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="simPeriod">トライアル期間：<span id="simPeriodLbl" class="num"></span></label>
+        <input type="range" id="simPeriod" min="1" max="12" step="1" value="6">
+        <span class="cap" id="simRangeNote"></span>
+      </div>
+    </div>
+    <div class="months" id="simMonths" aria-live="polite"></div>
+    <div class="sim-total">
+      <div><span class="cap">助成額の上限の目安（1人あたり）</span><br><span class="big" id="simTotal">0円</span></div>
+      <div class="sim-note" id="simInfo"></div>
+    </div>
+    <p class="cap">月のマスをクリックすると、その月の「予定日数に対する実際の出勤日数の割合」が切り替わります（75%以上 → 50〜75%未満 → 25〜50%未満 → 25%未満 → 0%）。割合に応じて月額が4分の3、2分の1、4分の1、不支給となります。有給休暇は出勤とみなされます。これは要領の計算式による上限の目安で、実際の支給は労働局の審査で決まります。</p>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>項目</th><th>障害者トライアル</th><th class="focus">同・精神障害者</th><th>障害者短時間トライアル</th><th>一般トライアル（参考）</th></tr></thead>
+      <tbody>
+        <tr><th>対象</th><td>障害者で要件ア〜エのいずれか</td><td class="focus">精神障害者（要件ア〜ウは不要）</td><td>精神障害者・発達障害者</td><td>就職困難な求職者（離転職の繰り返し、離職1年超など）</td></tr>
+        <tr><th>週の時間</th><td>20時間以上</td><td class="focus">20時間以上</td><td>10〜20時間未満で始め、期間中に20時間以上を目指す</td><td>30時間以上（通常の労働者と同じ）</td></tr>
+        <tr><th>期間</th><td>原則3か月（身体・知的の重度以外は合意で1〜2か月も可）。在宅勤務は3〜6か月</td><td class="focus">原則6〜12か月（合意で3〜5か月も可、その場合は延長不可）</td><td>3〜12か月</td><td>原則3か月</td></tr>
+        <tr><th>月額の上限</th><td>4万円</td><td class="focus">最初の3か月8万円、4〜6か月目4万円</td><td>4万円</td><td>4万円（ひとり親は5万円）</td></tr>
+        <tr><th>助成の対象期間</th><td>最長3か月（在宅で3か月超でも3か月まで）</td><td class="focus">最長6か月（7か月目以降は助成なし）</td><td>最長12か月</td><td>最長3か月</td></tr>
+        <tr><th>上限の合計</th><td class="num">12万円</td><td class="focus num">36万円</td><td class="num">48万円</td><td class="num">12万円（ひとり親15万円）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">このほか、中小建設事業主が35歳未満または女性を雇う場合は「若年・女性建設労働者トライアルコース」（月額最大4万円、最長3か月）を障害者トライアル・一般トライアルに上乗せできます（短時間トライアルは対象外）。<span class="badge b-high">確度 高</span></p>
+  <p class="cap">出典：厚生労働省「障害者トライアル雇用事業実施要領」「支給要領」（いずれもR8.4.8版）、一般トライアルコースのページ。<span class="badge b-high">確度 高</span> 令和8年4月8日の改正で申請様式が切り替わりましたが、助成額・期間・対象者の枠組みは変わっていません。令和2年版の実施要領と比べると、紹介事業者についての文言や、ハローワーク側の計画書の保管期間（3年→5年）などが違いますが、どの年の改正で変わったのかは途中の版が見当たらず特定できませんでした。<span class="badge b-low">要確認</span></p>
+</section>
+
+<!-- 5 -->
+<section class="sec" id="s5" data-title="似た制度との違い">
+  <div class="sec-head">
+    <div class="sec-no">05 ／ 比較</div>
+    <h2>似た仕組みと何が違うのか</h2>
+    <p class="muted">本人や職場から最も混同されやすいのが「試用期間」と「職場実習」です。違いの核心は「雇用契約があるか」と「契約に終わりの日があるか」の二点です。</p>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th></th><th class="focus">トライアル雇用</th><th>試用期間</th><th>職場実習</th><th>特定求職者雇用開発助成金での採用</th></tr></thead>
+      <tbody>
+        <tr><th>雇用契約</th><td class="focus">あり（有期）</td><td>あり（多くは無期）</td><td>なし</td><td>あり（継続雇用が前提）</td></tr>
+        <tr><th>賃金</th><td class="focus">あり</td><td>あり</td><td>原則なし</td><td>あり</td></tr>
+        <tr><th>期間の終わり</th><td class="focus">期間満了で契約が終わりうる</td><td>本採用の拒否は、留保された解約権の行使とされ、客観的に合理的な理由が必要（三菱樹脂事件）</td><td>実習の終了</td><td>終わりは前提としない</td></tr>
+        <tr><th>見極めの性格</th><td class="focus">本人と職場がお互いに見極める</td><td>主に職場が適格性を見る</td><td>体験・アセスメント</td><td>見極めの仕組みは持たない</td></tr>
+        <tr><th>職場への助成</th><td class="focus">月額最大4万円など</td><td>なし</td><td>なし</td><td>期間・額は障害程度や企業規模で異なる</td></tr>
+        <tr><th>組み合わせ</th><td colspan="4">障害者トライアル後に継続雇用へ移った場合、特定求職者雇用開発助成金は「第2期」の支給対象期分から受けられます（令和3年7月1日以降に紹介された人）。<span class="badge b-high">確度 高</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout amber">
+    <div class="tag">法的な論点（参考）</div>
+    <p>試すことを目的にした有期契約について、最高裁は「期間満了で当然に終わるという明確な合意など特別な事情がない限り、期間の定めのない契約の試用期間とみるのが相当」と判断しています（神戸弘陵学園事件、最三小判平成2年6月5日）。公的なトライアル雇用は求人票・計画書で有期であることや継続の要件を明示する仕組みですが、個別の終了が法的に争われうるかは事情によります。<span class="badge b-mid">確度 中</span> 支援者が法的判断をする場面ではありません。疑問があれば総合労働相談コーナーや弁護士につなぎます。</p>
+  </div>
+</section>
+
+
+<!-- pros & cons -->
+<section class="sec" id="s5b" data-title="メリットとデメリット">
+  <div class="sec-head">
+    <div class="sec-no">06 ／ 損得の整理</div>
+    <h2>立場ごとのメリットとデメリット</h2>
+    <p class="muted">同じ制度でも、本人・職場・就労移行支援事業所で見え方が違います。メリットの多くは「仕組みから期待される利点」であり、効果の大きさが実証されたものではない点に注意してください。<span class="badge b-mid">確度 中</span></p>
+  </div>
+  <div class="pc">
+    <div class="card pc-card">
+      <h3>本人</h3>
+      <div class="pc-cols">
+        <div><div class="pc-lbl plus">メリット</div><ul>
+          <li>書類では伝わりにくい力を、面接と実際の働きぶりで示せる</li>
+          <li>仕事内容・人間関係・通勤を確かめてから、続けるかを考えられる</li>
+          <li>配慮を試し、効いたものを継続後の働き方に持ち越せる</li>
+          <li>賃金が出て、職歴になり、雇用保険にも入る（週20時間以上）</li>
+          <li>精神・発達障害では、長めの期間や短時間から始める選択肢がある</li>
+        </ul></div>
+        <div><div class="pc-lbl minus">デメリット・リスク</div><ul>
+          <li>有期契約のため、期間中は生活の見通しが不安定</li>
+          <li>継続するかの判断は実質的に職場が持つ</li>
+          <li>障害の開示が前提で、非開示の就職では使えない</li>
+          <li>同時に複数のトライアル求人には応募できない</li>
+          <li>継続しなかった経験が自信の低下につながることがある</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="card pc-card">
+      <h3>職場</h3>
+      <div class="pc-cols">
+        <div><div class="pc-lbl plus">メリット</div><ul>
+          <li>任せられる仕事や接し方を、実際に働くなかで確かめられる</li>
+          <li>助成金で「試すコスト」の一部が補われる</li>
+          <li>継続後は特定求職者雇用開発助成金（第2期から）につなげられる</li>
+          <li>ハローワーク等の訪問・助言を受けやすい</li>
+        </ul></div>
+        <div><div class="pc-lbl minus">デメリット・リスク</div><ul>
+          <li>計画書（2週間以内）・支給申請（2か月以内）の事務と期限</li>
+          <li>継続に至らない人が一定数を超えると助成の対象外になる</li>
+          <li>期間中も賃金・安全配慮などの責任は通常の雇用と同じ</li>
+          <li>有期の状態を長く続けると、本人の不安が高まり定着を損ないうる</li>
+        </ul></div>
+      </div>
+    </div>
+    <div class="card pc-card">
+      <h3>就労移行支援事業所・支援者</h3>
+      <div class="pc-cols">
+        <div><div class="pc-lbl plus">メリット</div><ul>
+          <li>実際の職場で支援の見立てを確かめられ、アセスメントの精度が上がる</li>
+          <li>施設外支援で並走すれば、つまずきに早く気づける</li>
+          <li>本人と職場の間で配慮を調整する役割を担いやすい</li>
+        </ul></div>
+        <div><div class="pc-lbl minus">デメリット・リスク</div><ul>
+          <li>施設外支援には運営規程・計画の見直し・日報などの要件がある</li>
+          <li>施設外支援のルートでは、一般就労への移行と定着の数え始めが遅れる</li>
+          <li>ルート選択に事業所の都合が入り込む利益相反の余地がある</li>
+          <li>継続しなかった場合の本人のケアと再出発の設計が必要</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 6 -->
+<section class="sec" id="s6" data-title="就労移行支援とのつながり">
+  <div class="sec-head">
+    <div class="sec-no">07 ／ 就労移行支援との接続</div>
+    <h2>トライアル中、就労移行支援はどうなるのか</h2>
+    <p class="muted">就労移行支援の現場で最も実務的な論点です。福祉側のルール（障害福祉課長通知・報酬改定Q&A）と、雇用側のルールを重ねて見る必要があります。</p>
+  </div>
+  <div class="prose">
+    <p>トライアル雇用中も、要件を満たせば就労移行支援を<strong>「施設外支援」</strong>（事業所の外で行う支援を、事業所の利用として扱う仕組み）として続けられます。対象は障害者トライアルコースと障害者短時間トライアルコースです。<span class="badge b-high">確度 高</span></p>
+    <p>ただし、施設外支援として続けている間、その人は「就労移行支援の利用者」であり、<strong>一般就労へ移行した人としては扱われません</strong>。就職後6か月の定着のカウントは、就労移行支援の利用が終わった後から始まります。<span class="badge b-high">確度 高</span></p>
+  </div>
+
+  <h3>同じ「3か月のトライアル→継続雇用」でも、カウントの始まりが違う</h3>
+  <div class="diagram-scroll">
+    <svg viewBox="0 0 760 270" role="img" aria-label="ルートAではトライアル中も就労移行支援を施設外支援で続け、3か月目から定着の6か月を数え始め9か月目に達する。ルートBではトライアル開始時に就労移行支援を終え、開始日から数えて6か月目に達する">
+      <!-- axis -->
+      <g font-size="11.5" class="svg-muted">
+        <text x="160" y="252" text-anchor="middle">0</text><text x="202" y="252" text-anchor="middle">1</text><text x="244" y="252" text-anchor="middle">2</text><text x="286" y="252" text-anchor="middle">3</text><text x="328" y="252" text-anchor="middle">4</text><text x="370" y="252" text-anchor="middle">5</text><text x="412" y="252" text-anchor="middle">6</text><text x="454" y="252" text-anchor="middle">7</text><text x="496" y="252" text-anchor="middle">8</text><text x="538" y="252" text-anchor="middle">9</text><text x="580" y="252" text-anchor="middle">10</text><text x="622" y="252" text-anchor="middle">11</text><text x="664" y="252" text-anchor="middle">12</text>
+        <text x="710" y="252">か月</text>
+      </g>
+      <line x1="160" y1="236" x2="690" y2="236" class="st-line" stroke-width="1"/>
+      <!-- route A -->
+      <text x="16" y="44" font-size="14" font-weight="700" class="svg-ink">ルートA</text>
+      <text x="16" y="62" font-size="11.5" class="svg-muted">施設外支援で</text>
+      <text x="16" y="77" font-size="11.5" class="svg-muted">並走を続ける</text>
+      <rect x="160" y="30" width="126" height="20" rx="4" class="svg-teal"/>
+      <text x="223" y="44" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-surface">トライアル</text>
+      <rect x="286" y="30" width="390" height="20" rx="4" class="svg-tealsoft"/>
+      <text x="480" y="44" text-anchor="middle" font-size="11.5" class="svg-teal">継続雇用</text>
+      <rect x="160" y="56" width="126" height="16" rx="4" class="svg-amber"/>
+      <text x="223" y="68" text-anchor="middle" font-size="10.5" font-weight="700" class="svg-surface">就労移行（施設外支援）</text>
+      <rect x="286" y="78" width="252" height="16" rx="4" class="svg-ambersoft st-amber" stroke-width="1"/>
+      <text x="412" y="90" text-anchor="middle" font-size="10.5" class="svg-ink">定着6か月のカウント（利用終了後から）</text>
+      <circle cx="538" cy="86" r="6" class="svg-amber"/>
+      <text x="548" y="112" font-size="11.5" font-weight="700" class="svg-ink">9か月目に6か月到達</text>
+      <!-- route B -->
+      <text x="16" y="158" font-size="14" font-weight="700" class="svg-ink">ルートB</text>
+      <text x="16" y="176" font-size="11.5" class="svg-muted">トライアル開始で</text>
+      <text x="16" y="191" font-size="11.5" class="svg-muted">就労移行を終える</text>
+      <rect x="160" y="144" width="126" height="20" rx="4" class="svg-teal"/>
+      <text x="223" y="158" text-anchor="middle" font-size="11.5" font-weight="700" class="svg-surface">トライアル</text>
+      <rect x="286" y="144" width="390" height="20" rx="4" class="svg-tealsoft"/>
+      <text x="480" y="158" text-anchor="middle" font-size="11.5" class="svg-teal">継続雇用</text>
+      <rect x="160" y="170" width="252" height="16" rx="4" class="svg-ambersoft st-amber" stroke-width="1"/>
+      <text x="286" y="182" text-anchor="middle" font-size="10.5" class="svg-ink">定着6か月のカウント（雇用開始から）</text>
+      <circle cx="412" cy="178" r="6" class="svg-amber"/>
+      <text x="422" y="206" font-size="11.5" font-weight="700" class="svg-ink">6か月目に6か月到達</text>
+      <line x1="160" y1="20" x2="160" y2="236" class="st-muted" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="164" y="16" font-size="11" class="svg-muted">トライアル開始</text>
+    </svg>
+  </div>
+  <p class="cap">ルートAの扱いは厚生労働省「平成30年度報酬改定Q&A VOL.5」問7による<span class="badge b-high">確度 高</span>。ルートBでトライアル開始を就職日として数える扱いは、名古屋市の通知などで示されている解釈で、自治体ごとの確認が必要です<span class="badge b-mid">確度 中</span>。就労定着支援を使える時期も同じ考え方でずれます。</p>
+
+  <div class="twoway">
+    <div class="card">
+      <h3 style="margin-bottom:8px">ルートA（施設外支援）の要件</h3>
+      <ul style="margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.93rem">
+        <li>運営規程に施設外支援が位置付けられている</li>
+        <li>施設外支援を含めた個別支援計画を作り、施設外で提供する間は1か月ごとに見直す</li>
+        <li>本人または職場から状況を聞き取り、日報を作る</li>
+        <li>緊急時の対応ができる</li>
+        <li>計画の作成・見直しは事業所・本人・関係者で協議し、必要に応じてハローワークと職場の意見を聞き、市町村が判断する</li>
+        <li>施設外支援は原則として年間180日まで（短時間トライアルは、計画の見直しで延長の必要が認められれば超えられる）</li>
+      </ul>
+      <p class="cap" style="margin-top:8px">出典：「就労移行支援事業、就労継続支援事業（A型、B型）における留意事項について」（R6.3.29改正）<span class="badge b-high">確度 高</span></p>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:8px">選ぶときの視点</h3>
+      <ul style="margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.93rem">
+        <li><b>ルートA</b>：期間中も通所や面談で振り返りができ、つまずきに早く気づける。一方で働きながらの通所は本人の負担になりうる。継続しなかった場合にそのまま訓練に戻りやすい</li>
+        <li><b>ルートB</b>：働くことに集中できる。期間中の支援は職場訪問・ハローワーク・就業・生活支援センター・ジョブコーチなど他の資源が中心になる</li>
+        <li>就労移行支援の標準利用期間（2年）の残りも考慮する</li>
+        <li><b>事業所の実績や報酬の都合で選ばない</b>。ルートの違いは定着実績の数え方や報酬に影響するため、利益相反が生まれうる場面です</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout teal">
+    <div class="tag">関連：短時間で働き始める人</div>
+    <p>令和6年4月から、雇われた後に週10〜20時間未満程度から段階的に時間を延ばす人が、雇用前と同じ事業所で就労系福祉サービスを一時的に使える仕組み（労働時間延長支援型）が法令上位置付けられました。利用期間は原則3〜6か月、必要なら合計1年までです。障害者短時間トライアルとは別の制度なので、重ねて使えるかどうかは市町村に確認します。<span class="badge b-high">確度 高</span>（制度の存在）／<span class="badge b-low">要確認</span>（併用の可否）</p>
+  </div>
+  <div class="callout rust">
+    <div class="tag">つまずきやすい点</div>
+    <p>就労継続支援A型の利用者（雇用契約あり）は、原則として障害者トライアル雇用の対象になりません。A型事業所での就労は一般雇用とは区別されているためです。<span class="badge b-high">確度 高</span> また、施設外支援として扱っている期間に職場適応援助者（ジョブコーチ）の助成金による支援を重ねることには制約があるため、組み合わせる前に指定権者と地域障害者職業センターに確認します。<span class="badge b-mid">確度 中</span></p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="sec" id="s7" data-title="データで見る実績と効果">
+  <div class="sec-head">
+    <div class="sec-no">08 ／ データ</div>
+    <h2>実績の数字と、その読み方</h2>
+  </div>
+  <div class="card chart">
+    <h3 style="margin-bottom:4px">トライアル後に継続雇用・常用雇用へ移った割合</h3>
+    <p class="cap" style="margin-bottom:10px">障害者トライアル（R2〜R4）と一般トライアル（R6）。棒の右は開始者数。</p>
+    <svg viewBox="0 0 700 230" role="img" aria-label="障害者トライアル雇用の継続雇用率は令和2年度81.4%、令和3年度80.4%、令和4年度80.3%。一般トライアルの常用雇用移行率は令和6年度71.3%">
+      <g font-size="12" class="svg-muted">
+        <text x="150" y="222" text-anchor="middle">0%</text><text x="283" y="222" text-anchor="middle">25%</text><text x="415" y="222" text-anchor="middle">50%</text><text x="548" y="222" text-anchor="middle">75%</text><text x="680" y="222" text-anchor="middle">100%</text>
+      </g>
+      <g class="st-line" stroke-width="1"><line x1="150" y1="10" x2="150" y2="205"/><line x1="283" y1="10" x2="283" y2="205"/><line x1="415" y1="10" x2="415" y2="205"/><line x1="548" y1="10" x2="548" y2="205"/><line x1="680" y1="10" x2="680" y2="205"/></g>
+      <!-- 530px = 100% ; x0 150 -->
+      <text x="140" y="38" text-anchor="end" font-size="13" class="svg-ink">障害者 R2</text>
+      <rect x="150" y="22" width="431" height="26" rx="3" class="svg-teal"/>
+      <text x="573" y="40" text-anchor="end" font-size="13" font-weight="700" class="svg-surface num">81.4%</text>
+      <text x="588" y="40" font-size="12" class="svg-muted">6,759人</text>
+      <text x="140" y="86" text-anchor="end" font-size="13" class="svg-ink">障害者 R3</text>
+      <rect x="150" y="70" width="426" height="26" rx="3" class="svg-teal"/>
+      <text x="568" y="88" text-anchor="end" font-size="13" font-weight="700" class="svg-surface">80.4%</text>
+      <text x="583" y="88" font-size="12" class="svg-muted">6,831人</text>
+      <text x="140" y="134" text-anchor="end" font-size="13" class="svg-ink">障害者 R4</text>
+      <rect x="150" y="118" width="426" height="26" rx="3" class="svg-teal"/>
+      <text x="568" y="136" text-anchor="end" font-size="13" font-weight="700" class="svg-surface">80.3%</text>
+      <text x="583" y="136" font-size="12" class="svg-muted">6,312人</text>
+      <text x="140" y="182" text-anchor="end" font-size="13" class="svg-ink">一般 R6</text>
+      <rect x="150" y="166" width="378" height="26" rx="3" class="svg-amber"/>
+      <text x="520" y="184" text-anchor="end" font-size="13" font-weight="700" class="svg-surface">71.3%</text>
+      <text x="535" y="184" font-size="12" class="svg-muted">2,099人</text>
+    </svg>
+    <p class="cap">出典：厚生労働省リーフレット「障害者トライアル雇用」のご案内（LL060401障02）、職業安定分科会（R8.3.27）参考資料5。障害者は「継続雇用率」、一般は「常用雇用移行率」で、定義が同じとは限らないため直接比較はできません。</p>
+  </div>
+
+  <div class="parts">
+    <div class="card">
+      <h3>読み方① 「8割が継続」の裏側 <span class="badge b-high">確度 高</span></h3>
+      <p style="margin-top:6px">裏返すと、毎年およそ2割が継続雇用に至っていません。開始者数をもとに計算すると、年1,200人前後にあたります。本人が辞退したのか、職場が継続しなかったのか、体調などで途中離職したのかの内訳は、公表資料からは分かりません。率の分母（開始者か終了者か）も明示されていません。</p>
+    </div>
+    <div class="card">
+      <h3>読み方② 「トライアルで定着が良くなる」とは言い切れない <span class="badge b-mid">確度 中</span></h3>
+      <p style="margin-top:6px">JEEDの調査では、一般求人で就職した人のうち支援制度を使った人の1年定着率は65.6%で、使わなかった人よりも27.9ポイント高い結果でした。ただしこの「支援制度」は特定求職者雇用開発助成金なども含む合計で、トライアル単独の効果ではありません。観察データのため、支援制度を使う職場や人がもともと定着しやすかった可能性（選択バイアス）も除けません。</p>
+    </div>
+  </div>
+  <div class="callout amber">
+    <div class="tag">エビデンスの現状</div>
+    <p>トライアル雇用を使った人と使わなかった人を無作為に分けて比べた研究は、今回の調査では見つかりませんでした。現時点の根拠は、行政の実績値と観察研究です。「見極めの機会があることで定着しやすくなる」という説明は理屈としては筋が通りますが、効果の大きさは分かっていない、と捉えるのが正確です。<span class="badge b-mid">確度 中</span></p>
+  </div>
+</section>
+
+</main>
+
+<!-- 8 band -->
+<div class="band">
+<div class="wrap">
+<section class="sec" id="s8" data-title="批判的に見る：制度の限界" style="padding-top:0">
+  <div class="sec-head">
+    <div class="sec-no">09 ／ 限界と論点</div>
+    <h2>批判的に見る：この制度が抱える緊張関係</h2>
+    <p class="muted">制度の良し悪しを決めるためではなく、使う場面で何に気をつけるかを考えるための論点です。各項目に、現場でできる手当てを添えています。</p>
+  </div>
+  <div class="crit">
+    <div class="crit-item"><div class="k">1</div><div>
+      <h3>出口の判断は職場側に偏る</h3>
+      <p>「お互いの見極め」とされますが、継続するかの最終判断は実質的に職場が持ちます。本人は「辞退する自由」はあっても、「続ける権利」はありません。有期契約である以上、生活の見通しは期間中ずっと不安定です。<span class="badge b-mid">確度 中</span></p>
+      <p class="counter"><b>手当て：</b>継続の要件を開始前に具体化し、途中で到達状況を三者で確認する。本人が自分で判断材料を持てるようにする。</p>
+    </div></div>
+    <div class="crit-item"><div class="k">2</div><div>
+      <h3>期間の長さは安心にも不安にもなる</h3>
+      <p>精神障害者は原則6〜12か月と長く見極められます。体調の波を含めて見られる利点がある一方、有期の状態が最長1年続きます。助成は6か月までなので、7か月目以降は職場にとって助成のない有期雇用です。<span class="badge b-high">確度 高</span>（制度）</p>
+      <p class="counter"><b>手当て：</b>「長いほど安心」と決めつけず、期間の長さと途中で継続へ切り替える可能性を本人と職場で話し合う。</p>
+    </div></div>
+    <div class="crit-item"><div class="k">3</div><div>
+      <h3>障害を開示することが前提</h3>
+      <p>障害者トライアルは、障害を開示して応募することが前提です。開示しない就職（クローズ就労）を選ぶ人には使えません。JEEDの調査では、精神障害者で非開示の割合が他の障害よりも高い傾向がありました。<span class="badge b-mid">確度 中</span></p>
+      <p class="counter"><b>手当て：</b>制度を使うために開示を勧めるのは順序が逆です。開示の判断は本人のもので、支援者はその判断材料を整える役割です。</p>
+    </div></div>
+    <div class="crit-item"><div class="k">4</div><div>
+      <h3>乱用防止ルールの「抜け道」としての合意</h3>
+      <p>過去3年にトライアル後継続しなかった人が3人を超え、かつ継続した人を上回る職場は助成対象外になります。ただし、継続の要件を満たさず本人が合意して期間満了になった場合などは、この人数に数えません。<span class="badge b-high">確度 高</span>（ルール）</p>
+      <p class="counter"><b>手当て：</b>本人の「合意」が実質的なものかに注意する。終了の説明に支援者が同席できるよう、本人に意向を確認しておく。</p>
+    </div></div>
+    <div class="crit-item"><div class="k">5</div><div>
+      <h3>就労移行支援側の利益相反</h3>
+      <p>施設外支援で並走すれば事業所には報酬が続き、一方で定着実績のカウントは遅れます。どちらのルートを選ぶかが、本人の利益ではなく事業所の都合で決まる危険があります。<span class="badge b-mid">確度 中</span></p>
+      <p class="counter"><b>手当て：</b>ルート選択の理由を個別支援計画に本人の言葉で残す。サービス管理責任者が確認する。</p>
+    </div></div>
+    <div class="crit-item"><div class="k">6</div><div>
+      <h3>効果の根拠が限られている</h3>
+      <p>前のセクションのとおり、比較群のある効果検証は見当たりません。「トライアルを使えば定着する」という説明は、現時点では言い過ぎです。<span class="badge b-mid">確度 中</span></p>
+      <p class="counter"><b>手当て：</b>本人や家族への説明では「見極める機会が得られる制度」と伝え、「定着が保証される制度」とは言わない。</p>
+    </div></div>
+  </div>
+</section>
+</div>
+</div>
+
+<div class="wrap">
+
+<!-- 9 -->
+<section class="sec" id="s9" data-title="支援者チェックリストと役割の境界">
+  <div class="sec-head">
+    <div class="sec-no">10 ／ 実践</div>
+    <h2>支援者チェックリスト</h2>
+    <p class="muted">ケース検討や面談前の確認に使えます。チェックはこのブラウザにだけ保存され、他の人には共有されません。</p>
+  </div>
+  <div class="card check-groups" id="checklist"></div>
+  <div style="display:flex;justify-content:flex-end"><button class="toc-btn" id="ckReset" type="button">チェックをすべて外す</button></div>
+
+  <h3 style="margin-top:8px">誰が何をするか：役割の境界</h3>
+  <div class="roles">
+    <div class="card role self">
+      <h3>就労移行支援のスタッフ</h3>
+      <ul>
+        <li>制度の仕組みと有期契約の意味を本人に説明する</li>
+        <li>継続の要件づくりの場に、本人の同意を得て同席する</li>
+        <li>配慮を試し、記録し、振り返る</li>
+        <li>継続しなかった場合の次の一手を一緒に考える</li>
+      </ul>
+    </div>
+    <div class="card role">
+      <h3>ハローワーク・労働局</h3>
+      <ul>
+        <li>対象者の確認と紹介</li>
+        <li>計画書の受理、職場訪問</li>
+        <li>助成金の支給可否の審査（労働局）</li>
+      </ul>
+    </div>
+    <div class="card role">
+      <h3>職場（と社会保険労務士）</h3>
+      <ul>
+        <li>雇用・賃金の支払い・労務管理</li>
+        <li>計画書の提出と支給申請</li>
+        <li>継続雇用の判断</li>
+      </ul>
+    </div>
+    <div class="card role">
+      <h3>専門職につなぐ場面</h3>
+      <ul>
+        <li>勤務時間や体調の判断 → 主治医</li>
+        <li>職場での集中的な適応支援 → 地域障害者職業センター（ジョブコーチ）</li>
+        <li>契約終了をめぐる争い → 総合労働相談コーナー・弁護士</li>
+        <li>サービス利用の可否 → 市町村・相談支援専門員</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="sec" id="s10" data-title="本人への伝え方">
+  <div class="sec-head">
+    <div class="sec-no">11 ／ 伝え方</div>
+    <h2>本人に説明するときの言い換え</h2>
+    <p class="muted">安心させようとして事実を丸めると、期間満了のときに本人が深く傷つきます。正確さと見通しの両方を渡す言い方を選びます。</p>
+  </div>
+  <div class="talk">
+    <div class="talk-row">
+      <div class="ng"><span class="lbl">避けたい言い方</span>「お試しで働けるから、気楽にやってみよう」</div>
+      <div class="ok"><span class="lbl">こう伝える</span>「最初の数か月は期間の決まった雇用です。お給料も出ます。その間にあなたも職場を見て、続けるかを考えられます」</div>
+    </div>
+    <div class="talk-row">
+      <div class="ng"><span class="lbl">避けたい言い方</span>「8割の人がそのまま採用されるから大丈夫」</div>
+      <div class="ok"><span class="lbl">こう伝える</span>「全国では8割ほどの人が続けて雇われています。続かない場合もあるので、続けるための条件を最初に一緒に確認しましょう」</div>
+    </div>
+    <div class="talk-row">
+      <div class="ng"><span class="lbl">避けたい言い方</span>「トライアルを使えば長く働けるよ」</div>
+      <div class="ok"><span class="lbl">こう伝える</span>「働く前には分からないことを、実際に働いて確かめられる制度です。どんな配慮があるとやりやすいかを試す時間にしましょう」</div>
+    </div>
+    <div class="talk-row">
+      <div class="ng"><span class="lbl">避けたい言い方</span>「続かなかったら失敗だね」</div>
+      <div class="ok"><span class="lbl">こう伝える</span>「続かなかった場合も、何が合って何が合わなかったかは次の職場探しに必ず使えます」</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- FAQ -->
+<section class="sec" id="s10b" data-title="よくある質問">
+  <div class="sec-head">
+    <div class="sec-no">12 ／ よくある質問</div>
+    <h2>本人・家族からよく聞かれること</h2>
+    <p class="muted">個別の判断は、雇用保険や助成金はハローワーク・労働局、福祉サービスの利用は市町村が行います。ここでは一般的なルールを示します。</p>
+  </div>
+  <div class="acc faq">
+    <details><summary><span class="t">職歴になりますか？</span><span class="p">なります <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>雇用契約を結び、賃金を受けて働いた事実なので、継続しなかった場合も職歴です。雇用保険の加入記録も残ります。</p>
+      <p>履歴書には在籍期間を書き、継続しなかった場合は「契約期間満了により退職」と書くのが一般的です。途中で継続雇用へ移った場合は、トライアル開始日を入社日として書くのが自然ですが、職場の記録と合わせておくと安心です。<span class="badge b-mid">確度 中</span></p>
+      <p>なお、その仕事は「経験のある職業」になるため、次に同じ職種でトライアルを使うときは要件ア（未経験の職業を希望）には当たりません。精神障害者や重度障害者は要件ア〜ウに関係なく対象なので、影響しません。<span class="badge b-high">確度 高</span></p>
+    </div></details>
+    <details><summary><span class="t">就労移行支援に籍を残したまま行けますか？</span><span class="p">条件付きで可能 <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>障害者トライアル・障害者短時間トライアルの期間は、要件を満たせば「施設外支援」として就労移行支援の利用を続けられます（07のルートA）。運営規程への記載、個別支援計画の作成と見直し、日報、緊急時の対応が必要で、計画は市町村が判断します。施設外支援は原則として年間180日までです。</p>
+      <p>施設外支援として扱わない場合は、トライアル開始が就職と扱われ、就労移行支援は就職日の前日までで終わります（ルートB）。どちらにするかは、開始前に市町村・指定権者に確認します。</p>
+      <p>施設外支援の日に事業所へ通所した場合、その日は施設外支援の実施日として扱われます。</p>
+    </div></details>
+    <details><summary><span class="t">継続しなかったら、就労移行支援に戻れますか？</span><span class="p">ルートによる <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>ルートAなら、まだ利用中なのでそのまま訓練に戻れます。ルートBで利用を終えていた場合は、改めて市町村の支給決定を受けます。就労移行支援は複数回の利用が可能ですが、個々の状況を見て市町村が判断し、標準利用期間（2年）の残りも影響します。</p>
+    </div></details>
+    <details><summary><span class="t">別の職場で、もう一度トライアル雇用を使えますか？</span><span class="p">使える <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>対象外になるのは「いま別のトライアル雇用の期間中の人」です。期間が終われば、改めて紹介を受けられます。そのときも要件ア〜エのいずれかに当てはまる必要があります。</p>
+    </div></details>
+    <details><summary><span class="t">期間の途中で辞められますか？</span><span class="p">話し合いで辞めるのが一般的 <span class="badge b-mid">確度 中</span></span></summary><div class="ans">
+      <p>期間の定めのある契約は、やむを得ない事由がある場合を除き、期間途中で一方的に終えることに制限があります（民法628条）。実際には職場との話し合い（合意）で退職する形が多いです。</p>
+      <p>体調などで続けるのが難しいと感じたら、一人で抱え込まずに早めに支援者やハローワークに相談するよう伝えておきます。</p>
+    </div></details>
+    <details><summary><span class="t">給料や保険はどうなりますか？</span><span class="p">通常の雇用と同じ <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>最低賃金以上の賃金が支払われ、労働条件は原則として継続後と同じです（違う場合は求人票に明記）。雇用保険は週20時間以上で加入します。健康保険・厚生年金は、労働時間や職場の規模などの加入要件を満たせば加入します。</p>
+    </div></details>
+    <details><summary><span class="t">継続しなかったら、失業給付は受けられますか？</span><span class="p">加入期間しだい <span class="badge b-high">確度 高</span>（ルール）</span></summary><div class="ans">
+      <p>基本手当を受けるには、原則として離職前2年間に雇用保険の被保険者期間が通算12か月以上必要です。期間満了で更新されず、本人が更新を希望していた場合は「特定理由離職者」となり、離職前1年間に6か月以上で足ります。</p>
+      <p>3か月のトライアルだけでは足りないことが多く、前の職場の加入期間を合算できる場合もあります。個別の判断はハローワークが行います。</p>
+    </div></details>
+    <details><summary><span class="t">有給休暇はもらえますか？</span><span class="p">6か月勤務から <span class="badge b-mid">確度 中</span></span></summary><div class="ans">
+      <p>有給休暇は、雇われた日から6か月続けて勤務し、8割以上出勤した人に与えられます（労働基準法39条）。3か月で終わった場合は発生しません。</p>
+      <p>継続雇用へ移った場合、継続勤務かどうかは契約の形ではなく勤務の実態で判断されるため（昭和63年3月14日 基発150号）、同じ職場で途切れずに働いていればトライアル期間も通算されるのが一般的な考え方です。</p>
+    </div></details>
+    <details><summary><span class="t">障害者手帳がなくても使えますか？</span><span class="p">使える場合がある <span class="badge b-high">確度 高</span></span></summary><div class="ans">
+      <p>主治医の意見書などで障害が確認できれば、対象になりえます（短時間型は精神障害者・発達障害者）。ただし、職場の障害者雇用率に数えられるのは手帳を持つ人に限られるため、手帳がないことを職場がどう受け止めるかは確認しておきます。</p>
+    </div></details>
+  </div>
+</section>
+<!-- 11 -->
+<section class="sec" id="s11" data-title="用語の言い換えと理解チェック">
+  <div class="sec-head">
+    <div class="sec-no">13 ／ 用語</div>
+    <h2>用語の言い換え</h2>
+    <p class="muted">左が制度上の言葉、右が機能を表す言い換えです。開くと補足が出ます。</p>
+  </div>
+  <div class="acc" id="glossary"></div>
+
+  <h2 style="margin-top:20px;font-size:1.4rem">理解チェック</h2>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<!-- 12 -->
+<section class="sec" id="s12" data-title="制度の経緯">
+  <div class="sec-head">
+    <div class="sec-no">14 ／ 経緯</div>
+    <h2>制度の主な変遷</h2>
+  </div>
+  <div class="hist">
+    <div><span class="y">1999年度</span><span>障害者の試行雇用事業が始まる（行政事業レビューシート上の開始年度）<span class="badge b-mid">確度 中</span></span></div>
+    <div><span class="y">2014年4月</span><span>現行の「障害者トライアル雇用事業実施要領」が制定される</span></div>
+    <div><span class="y">2016年4月</span><span>精神障害者を初めて雇う場合の助成を月額最大8万円に拡充</span></div>
+    <div><span class="y">2018年4月</span><span>精神障害者の助成を、月額最大8万円×3か月＋4万円×3か月（最長6か月）に拡充</span></div>
+    <div><span class="y">2021年4月</span><span>在宅勤務（テレワーク）の場合、トライアル期間を6か月まで延ばせるように</span></div>
+    <div><span class="y">2021年7月</span><span>特定求職者雇用開発助成金との併用を「第2期から」に変更</span></div>
+    <div><span class="y">2024年4月</span><span>福祉側：一般就労中でも就労系サービスを一時的に使える仕組みが法令に位置付けられる</span></div>
+    <div><span class="y">2026年4月8日</span><span>実施要領・支給要領を改正、申請様式が切り替わる。助成額・期間・対象者の枠組みは変わっていない。改正の具体的な中身は<span class="badge b-low">要確認</span></span></div>
+    <div><span class="y">2026年7月</span><span>民間の障害者の法定雇用率が2.7%に上がり、雇用義務のある事業主の範囲が従業員37.5人以上に広がる（トライアル雇用制度そのものの改正ではないが、使われ方の背景になる）<span class="badge b-high">確度 高</span></span></div>
+  </div>
+</section>
+
+<!-- sources -->
+<section class="sec" id="s13" data-title="出典">
+  <div class="sec-head">
+    <div class="sec-no">出典</div>
+    <h2>情報ソース</h2>
+    <p class="muted">2026年10月9日時点で確認。制度は改正されるため、利用時は最新版を確認してください。</p>
+  </div>
+  <ol class="src">
+    <li><a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/koyou/kyufukin/shougai_trial.html" target="_blank" rel="noopener">障害者トライアルコース・障害者短時間トライアルコース</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/001082121.pdf" target="_blank" rel="noopener">障害者トライアル雇用事業実施要領（R8.4.8版）</a> <span class="meta">厚生労働省 職業安定局</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/001082118.pdf" target="_blank" rel="noopener">トライアル雇用助成金（障害者トライアルコース・障害者短時間トライアルコース）支給要領（R8.4.8版）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000081117.html" target="_blank" rel="noopener">障害者トライアルコース等 申請様式ダウンロード（R8.4.8前後の様式）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/000562055.pdf" target="_blank" rel="noopener">「障害者トライアル雇用」のご案内（事業主向け、LL060401障02）</a> <span class="meta">厚生労働省・労働局・ハローワーク</span></li>
+    <li><a href="https://www.mhlw.go.jp/file/06-Seisakujouhou-11600000-Shokugyouanteikyoku/0000103780.pdf" target="_blank" rel="noopener">「障害者トライアル雇用」のご案内（求職者向け、LL300402雇障02）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/file/06-Seisakujouhou-11600000-Shokugyouanteikyoku/0000200888.pdf" target="_blank" rel="noopener">障害者トライアル雇用に関する助成内容を拡充しました（2018年）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/koyou/kyufukin/trial_koyou.html" target="_blank" rel="noopener">トライアル雇用助成金（一般トライアルコース）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/11601000/001680960.pdf" target="_blank" rel="noopener">職業安定分科会（第223回）参考資料5（R8.3.27）</a> <span class="meta">一般トライアルのR6実績</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/000844556.pdf" target="_blank" rel="noopener">特定求職者雇用開発助成金：障害者トライアルコースと併用する場合の変更（2021年）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/001261445.pdf" target="_blank" rel="noopener">就労移行支援事業、就労継続支援事業（A型、B型）における留意事項について（R6.3.29改正）</a> <span class="meta">厚生労働省 障害福祉課長通知</span></li>
+    <li><a href="https://www.pref.akita.lg.jp/uploads/public/archive_0000033043_00/301217%E3%80%80Q&amp;A_vol.5.pdf" target="_blank" rel="noopener">平成30年度障害福祉サービス等報酬改定等に関するQ&amp;A VOL.5（問7）</a> <span class="meta">厚生労働省事務連絡（秋田県掲載）</span></li>
+    <li><a href="https://www.kaigo-wel.city.nagoya.jp/view/wel/docs_jigyosya/2018112600030/files/kikan.pdf" target="_blank" rel="noopener">就労定着支援の支給決定期間について（トライアル雇用の取扱い）</a> <span class="meta">名古屋市</span></li>
+    <li><a href="https://www.nivr.jeed.go.jp/research/report/houkoku/houkoku137.html" target="_blank" rel="noopener">調査研究報告書No.137 障害者の就業状況等に関する調査研究（2017）</a> <span class="meta">JEED 障害者職業総合センター</span>（<a href="https://www.nivr.jeed.go.jp/research/report/houkoku/p8ocur0000000nub-att/houkoku137_summary.pdf" target="_blank" rel="noopener">サマリーPDF</a>）</li>
+    <li><a href="https://www.mhlw.go.jp/shingi/2005/09/dl/s0929-15e76.pdf" target="_blank" rel="noopener">今後の労働契約法制の在り方に関する研究会 関連資料（神戸弘陵学園事件への言及）</a> <span class="meta">厚生労働省（2005）</span></li>
+    <li><a href="https://www.pref.osaka.lg.jp/documents/6136/014.pdf" target="_blank" rel="noopener">試用期間（三菱樹脂事件など）</a> <span class="meta">大阪府 労働相談資料</span></li>
+    <li><a href="https://www.hellowork.mhlw.go.jp/insurance/insurance_basicbenefit.html" target="_blank" rel="noopener">基本手当について（受給要件）</a> <span class="meta">ハローワークインターネットサービス</span></li>
+    <li><a href="https://www.hellowork.mhlw.go.jp/insurance/insurance_range.html" target="_blank" rel="noopener">特定受給資格者及び特定理由離職者の範囲</a> <span class="meta">ハローワークインターネットサービス</span></li>
+    <li><a href="https://laws.e-gov.go.jp/law/129AC0000000089" target="_blank" rel="noopener">民法（第628条 やむを得ない事由による雇用の解除）</a> <span class="meta">e-Gov法令検索</span></li>
+    <li><a href="https://www.pref.osaka.lg.jp/documents/6136/029.pdf" target="_blank" rel="noopener">年次有給休暇（継続勤務の判断、基発150号）</a> <span class="meta">大阪府 労働相談資料</span></li>
+    <li><a href="https://jsite.mhlw.go.jp/shimane-roudoukyoku/content/contents/002132881.pdf" target="_blank" rel="noopener">障害者雇用状況の集計結果（雇用率の算定基準）</a> <span class="meta">島根労働局</span></li>
+    <li><a href="https://www.mhlw.go.jp/content/000653378.pdf" target="_blank" rel="noopener">障害者トライアル雇用事業実施要領（令和2年4月1日改正版、比較用）</a> <span class="meta">厚生労働省</span></li>
+    <li><a href="https://jsite.mhlw.go.jp/oita-roudoukyoku/hourei_seido_tetsuzuki/kourei_shougai_gaikoku/shougaisha_houteikoyouritsu_202607.html" target="_blank" rel="noopener">令和8年7月より障害者の法定雇用率が2.7%に引き上げられます</a> <span class="meta">大分労働局</span></li>
+    <li><a href="https://www.mhlw.go.jp/jigyo_shiwake/gyousei_review_sheet/2015/h26_pdf_saisyu/527.pdf" target="_blank" rel="noopener">平成27年度 行政事業レビューシート（障害者試行雇用事業）</a> <span class="meta">厚生労働省</span></li>
+  </ol>
+</section>
+
+</div>
+
+<footer>岡村雄一郎</footer>
+
+<script>
+(function(){
+  /* ---------- TOC & progress ---------- */
+  var secs=[].slice.call(document.querySelectorAll('section.sec[data-title]'));
+  var toc=document.getElementById('tocPanel'), btn=document.getElementById('tocBtn');
+  secs.forEach(function(s,i){
+    var b=document.createElement('button'); b.type='button';
+    b.setAttribute('data-target',s.id);
+    b.innerHTML='<b>'+(s.id==='s13'?'—':String(i+1).padStart(2,'0'))+'</b>'+s.getAttribute('data-title');
+    b.onclick=function(){ scrollToSection(s.id); toc.hidden=true; btn.setAttribute('aria-expanded','false'); };
+    toc.appendChild(b);
+  });
+  function closeToc(){ toc.hidden=true; btn.setAttribute('aria-expanded','false'); }
+  btn.onclick=function(e){ e.stopPropagation(); toc.hidden=!toc.hidden; btn.setAttribute('aria-expanded',String(!toc.hidden)); };
+  document.addEventListener('click',function(e){ if(!toc.hidden && !toc.contains(e.target)) closeToc(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeToc(); });
+  var curEl=document.getElementById('curSec'), tocBtns=[].slice.call(toc.querySelectorAll('button'));
+  function scrollToSection(id){ var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  var prog=document.getElementById('prog');
+  function onScroll(){ var h=document.documentElement; var max=h.scrollHeight-h.clientHeight; prog.style.width=(max>0?(h.scrollTop/max*100):0)+'%';
+    var cur=-1; secs.forEach(function(sc,i){ if(sc.getBoundingClientRect().top<140) cur=i; });
+    curEl.textContent=cur>=0?('現在：'+secs[cur].getAttribute('data-title')):'';
+    tocBtns.forEach(function(b,i){ b.classList.toggle('cur',i===cur); }); }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  /* ---------- reveal (visible at rest; gentle lift only) ---------- */
+  var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if('IntersectionObserver' in window && !rm){
+    var items=[].slice.call(document.querySelectorAll('.card, .callout, .tl li, .diagram-scroll, .tbl-wrap, .crit-item'));
+    var vh=window.innerHeight;
+    items.forEach(function(el){ if(el.getBoundingClientRect().top>vh){ el.classList.add('reveal','pre'); } });
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove('pre'); io.unobserve(e.target);} }); },{rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(el){ if(el.classList.contains('pre')) io.observe(el); });
+  }
+
+  /* ---------- simulator ---------- */
+  var BANDS=[{l:'出勤 75%以上',f:1},{l:'50〜75%未満',f:.75},{l:'25〜50%未満',f:.5},{l:'25%未満',f:.25},{l:'出勤 0%',f:0}];
+  var C={
+    shogai:{min:1,max:3,def:3,cap:3,rate:function(){return 40000},note:'原則3か月。1〜2か月は身体・知的障害（重度以外）で本人と職場が合意した場合のみ（延長不可）。'},
+    seishin:{min:3,max:12,def:6,cap:6,rate:function(m){return m<=3?80000:40000},note:'原則6〜12か月。3〜5か月は本人と職場の合意による場合（延長不可）。助成は最長6か月。'},
+    telework:{min:1,max:6,def:6,cap:3,rate:function(){return 40000},note:'在宅勤務（所定労働時間の半分以上）は原則3〜6か月。期間が延びても助成は最長3か月。'},
+    tanjikan:{min:3,max:12,def:12,cap:12,rate:function(){return 40000},note:'週10〜20時間未満で始め、期間中に20時間以上を目指す。3〜12か月。'},
+    ippan:{min:3,max:3,def:3,cap:3,rate:function(){return 40000},note:'原則3か月。週30時間以上の無期雇用を希望する人が対象。'},
+    hitori:{min:3,max:3,def:3,cap:3,rate:function(){return 50000},note:'母子家庭の母等・父子家庭の父の場合、月額5万円。'}
+  };
+  var selC=document.getElementById('simCourse'), rng=document.getElementById('simPeriod'), lbl=document.getElementById('simPeriodLbl'),
+      note=document.getElementById('simRangeNote'), grid=document.getElementById('simMonths'), tot=document.getElementById('simTotal'), info=document.getElementById('simInfo');
+  var bands=[]; for(var i=0;i<12;i++) bands.push(0);
+  function yen(n){ return n.toLocaleString('ja-JP')+'円'; }
+  function setCourse(){
+    var c=C[selC.value]; rng.min=c.min; rng.max=c.max; rng.value=c.def; rng.disabled=(c.min===c.max);
+    for(var i=0;i<12;i++) bands[i]=0; render();
+  }
+  function render(){
+    var c=C[selC.value], p=+rng.value; lbl.textContent=p+'か月'; note.textContent=c.note;
+    grid.innerHTML=''; var sum=0, paidMonths=0;
+    for(var m=1;m<=p;m++){
+      var b=document.createElement('button'); b.type='button'; b.className='mcell';
+      if(m>c.cap){
+        b.classList.add('off'); b.disabled=true;
+        b.innerHTML='<span class="mn">'+m+'か月目</span><span class="band">雇用は継続中</span><span class="amt">助成の対象外</span>';
+      } else {
+        var base=c.rate(m), amt=base*BANDS[bands[m-1]].f; sum+=amt; paidMonths++;
+        if(selC.value==='seishin'&&m<=3) b.classList.add('hi');
+        b.innerHTML='<span class="mn">'+m+'か月目</span><span class="band">'+BANDS[bands[m-1]].l+'</span><span class="amt">'+yen(amt)+'</span>';
+        b.setAttribute('aria-label',m+'か月目、'+BANDS[bands[m-1]].l+'、'+yen(amt)+'。クリックで出勤割合を切り替え');
+        (function(idx){ b.onclick=function(){ bands[idx]=(bands[idx]+1)%BANDS.length; render(); }; })(m-1);
+      }
+      grid.appendChild(b);
+    }
+    tot.textContent=yen(sum);
+    var unpaid=Math.max(0,p-c.cap);
+    info.innerHTML='助成の対象：<b class="num">'+paidMonths+'か月</b>'+(unpaid?'　／　助成のない有期期間：<b class="num" style="color:var(--rust)">'+unpaid+'か月</b>':'');
+  }
+  selC.onchange=setCourse; rng.oninput=render; setCourse();
+
+  /* ---------- checklist ---------- */
+  var CK=[
+    {g:'開始前',items:[
+      '本人が「有期の雇用契約であり、期間満了で終わりうる」ことを理解したうえで希望している',
+      '障害の開示範囲と、試したい配慮の仮説を本人と整理した',
+      '求人票で、期間中と継続後の労働条件（時間・賃金・業務）の違いを確認した',
+      '「継続雇用へ移るための要件」を観察できる行動で具体化する場を、本人の同意のもとで設けた（計画書は開始から2週間以内）',
+      '就労移行を施設外支援で続けるかを本人の利益を軸に検討し、市町村・指定権者に確認した',
+      '勤務時間・通院日について、本人の同意を得て主治医や相談支援専門員と共有した'
+    ]},
+    {g:'期間中',items:[
+      '振り返りの頻度と方法（誰が・いつ・何を見るか）を職場と合意した',
+      '試した配慮とその結果を記録している',
+      '要件への到達状況を、期間の途中で本人と確認した',
+      '体調の波や欠勤のときの連絡ルートが決まっている',
+      '施設外支援の場合、日報と個別支援計画の見直しを要件どおり行っている',
+      'ジョブコーチなど外部の支援の必要性を検討した'
+    ]},
+    {g:'判断の前後',items:[
+      '継続判断の時期と方法を本人が知っている',
+      '継続後の労働条件を書面で確認した',
+      '継続しない場合の理由の聞き取りと、次の一手を準備した',
+      '定着支援（就労定着支援を含む）の開始時期を確認した'
+    ]}
+  ];
+  var KEY='trial-koyou-ck-v1', saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ saved={}; }
+  var ckRoot=document.getElementById('checklist');
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){} }
+  function buildCk(){
+    ckRoot.innerHTML='';
+    CK.forEach(function(grp,gi){
+      var d=document.createElement('div'); d.className='cg';
+      var h=document.createElement('h3'); var cnt=document.createElement('span'); cnt.className='cnt';
+      h.textContent=grp.g; h.appendChild(cnt); d.appendChild(h);
+      function upd(){ var n=grp.items.filter(function(_,ii){return saved[gi+'-'+ii];}).length; cnt.textContent=n+' / '+grp.items.length; }
+      grp.items.forEach(function(t,ii){
+        var id='ck-'+gi+'-'+ii; var lab=document.createElement('label'); lab.className='ck'; lab.setAttribute('for',id);
+        var inp=document.createElement('input'); inp.type='checkbox'; inp.id=id; inp.checked=!!saved[gi+'-'+ii];
+        var sp=document.createElement('span'); sp.textContent=t;
+        if(inp.checked) lab.classList.add('done');
+        inp.onchange=function(){ saved[gi+'-'+ii]=inp.checked; lab.classList.toggle('done',inp.checked); upd(); save(); };
+        lab.appendChild(inp); lab.appendChild(sp); d.appendChild(lab);
+      });
+      upd(); ckRoot.appendChild(d);
+    });
+  }
+  buildCk();
+  document.getElementById('ckReset').onclick=function(){ saved={}; save(); buildCk(); };
+
+  /* ---------- glossary ---------- */
+  var G=[
+    ['有期雇用契約','終わりの日が最初から決まっている雇用の約束','期間が来れば、更新や新しい契約がない限り契約は終わります。期間中は賃金・労働時間などのルールが通常の雇用と同じように適用されます。'],
+    ['継続雇用する労働者','1年を超えて働き続ける見込みで、雇用保険に入って雇われる人','トライアル雇用が目指すゴールの状態です。就労継続支援A型の利用者は含まれません。'],
+    ['職業紹介','ハローワーク等が「この人とこの求人」を正式につなぐ手続き','トライアル雇用はこの紹介を通らないと始められません。民間の職業紹介事業者も、助成金の取扱いに同意していれば紹介できます。'],
+    ['トライアル雇用求人','トライアルでの採用を認めると先に宣言した求人','紹介の前に出しておく必要があります。継続雇用とトライアルを両方認める「併用求人」と、トライアルのみの「専用求人」があります。'],
+    ['実施計画書','トライアルの中身と「続けて雇う条件」を書いて届け出る書類','開始から2週間以内に職場がハローワーク等に出します。続けて雇う条件は、本人と話し合い、同意を得て決めることになっています。'],
+    ['支給申請','職場が助成金を受け取るために労働局へ出す申請','原則として終了の翌日から2か月以内。期限を過ぎると受けられません。'],
+    ['施設外支援','事業所の外で行う支援を、事業所の利用として扱う仕組み','トライアル中も就労移行支援を続けるときに使います。運営規程・個別支援計画・日報などの要件があります。'],
+    ['指定権者','就労移行支援事業所を指定し、指導する自治体','報酬や施設外支援の扱いで迷ったときの確認先です。サービスを使えるかの判断（支給決定）は市町村が行います。'],
+    ['雇止め','有期契約を更新せず、期間満了で終えること','トライアル後に継続しない場合はこれにあたります。事情によっては法的に争われることもあります。'],
+    ['ジョブコーチ（職場適応援助者）','職場に入り、本人と職場の双方に働き方の調整を助ける専門の支援者','地域障害者職業センターに配置される人、支援機関から訪問する人、職場に在籍する人の3種類があります。']
+  ];
+  var gr=document.getElementById('glossary');
+  G.forEach(function(x){
+    var d=document.createElement('details');
+    d.innerHTML='<summary><span class="t">'+x[0]+'</span><span class="p">'+x[1]+'</span></summary><div class="ans"><p>'+x[2]+'</p></div>';
+    gr.appendChild(d);
+  });
+
+  /* ---------- quiz ---------- */
+  var Q=[
+    {q:'トライアル雇用中の人は、職場に「雇用されている」状態である。',a:true,e:'正解は「はい」。有期の雇用契約を結び、賃金が支払われ、雇用保険にも加入します（短時間型で週20時間未満の期間を除く）。職場実習とは違います。'},
+    {q:'精神障害のある人の場合、トライアル期間と助成金が出る期間は同じである。',a:false,e:'正解は「いいえ」。トライアル期間は原則6〜12か月ですが、助成は最長6か月です。7か月目以降は助成のない有期雇用になります。'},
+    {q:'就労移行支援を施設外支援として続けた場合、トライアル開始日から就職後6か月の定着を数え始める。',a:false,e:'正解は「いいえ」。施設外支援で利用している間は一般就労への移行者として扱われず、利用が終わった後から6か月を数えます（報酬改定Q&A VOL.5 問7）。'},
+    {q:'継続雇用率が約8割であることは、トライアル雇用が定着率を高める証拠である。',a:false,e:'正解は「いいえ」。これは行政の実績値で、トライアルを使わなかった人との比較がありません。定着への効果の大きさは、現時点では分かっていません。'},
+    {q:'継続雇用へ移るための要件は、職場が単独で決めて計画書に書けばよい。',a:false,e:'正解は「いいえ」。開始前に本人と十分に話し合い、本人の同意を得て決めるよう、実施要領で求められています。'}
+  ];
+  var qz=document.getElementById('quiz');
+  Q.forEach(function(x,i){
+    var c=document.createElement('div'); c.className='card q';
+    c.innerHTML='<p><b>Q'+(i+1)+'.</b> '+x.q+'</p><div class="opts"><button type="button" data-v="1">はい</button><button type="button" data-v="0">いいえ</button></div><p class="fb" hidden></p>';
+    var bs=c.querySelectorAll('button'), fb=c.querySelector('.fb');
+    [].forEach.call(bs,function(b){ b.onclick=function(){
+      [].forEach.call(bs,function(o){o.classList.remove('right','wrong');});
+      var ok=(b.getAttribute('data-v')==='1')===x.a;
+      b.classList.add(ok?'right':'wrong');
+      if(!ok){ [].forEach.call(bs,function(o){ if((o.getAttribute('data-v')==='1')===x.a) o.classList.add('right'); }); }
+      fb.textContent=(ok?'その通りです。':'惜しい。')+x.e; fb.hidden=false;
+    };});
+    qz.appendChild(c);
+  });
+})();
+</script>
+
+</body>
+</html>
